@@ -30,7 +30,7 @@ import numpy as np
 
 #st.warning("Go to login page and then try this page")
 
-@st.experimental_singleton
+@st.cache_resource
 def models():
     model = AutoModelForSeq2SeqLM.from_pretrained("t5-base")
     tokenizer = AutoTokenizer.from_pretrained("t5-base")
@@ -222,45 +222,45 @@ def percent_dataframe(Ordered_list_Resume,list_percentages):
 #code
 #st.subheader("Files Uploader")
 # def file_uploader():
-if "authenticated" not in st.session_state:
-    st.warning("Please login first")
+# if "authenticated" not in st.session_state:
+#     st.warning("Please login first")
 
-elif "authenticated" in st.session_state and st.button("Logout"):
-    st.warning("Your session is logged out, Login to proceed!")
+# elif "authenticated" in st.session_state and st.button("Logout"):
+#     st.warning("Your session is logged out, Login to proceed!")
 
-else:
-    if st.session_state['authenticated']:
-        st.header("Resume Screening")
-        jd_file = st.file_uploader("Give one file for JD",type = ['pdf',"PDF",'docx','doc'],key="jd_file")
-        resume_files = st.file_uploader("Resume folder",type = ['pdf','doc','docx'],key="resume_file",accept_multiple_files=True)
-        if st.button("Done"):
-            st.write("Loading...")
-            if (resume_files is not None) and (jd_file is not None):
-                #file_details = {"Filename":jd_file.name,"FileType":jd_file.type,"FileSize":jd_file.size}
-                #st.write(file_details)
-                resume_all_files = concat_all_files(resume_files)
-                resume_parser_files = parser(resume_all_files)
-                job_desc_parser_files = jb_parser([jd_file])
-                job_desc_preprocess = apply_nltk(job_desc_parser_files)
-                resume_preprocess = apply_nltk(resume_parser_files)
-                resume_model = fine_tune_model(resume_preprocess,model,tokenizer)
-                test = job_desc_preprocess[0]
-                tttt = str(test)
-                result = job_desc_model(tttt,model,tokenizer)
-                list_percent = percentages(resume_model,result)
-                #print(list_percent)
-                df = percent_dataframe(Ordered_list_Resume,list_percent)
-                st.write("Score out of 10")
-                st.dataframe(df)
+# else:
+#     if st.session_state['authenticated']:
+st.header("Resume Screening")
+jd_file = st.file_uploader("Give one file for JD",type = ['pdf',"PDF",'docx','doc'],key="jd_file")
+resume_files = st.file_uploader("Resume folder",type = ['pdf','doc','docx'],key="resume_file",accept_multiple_files=True)
+if st.button("Done"):
+    st.write("Loading...")
+    if (resume_files is not None) and (jd_file is not None):
+        #file_details = {"Filename":jd_file.name,"FileType":jd_file.type,"FileSize":jd_file.size}
+        #st.write(file_details)
+        resume_all_files = concat_all_files(resume_files)
+        resume_parser_files = parser(resume_all_files)
+        job_desc_parser_files = jb_parser([jd_file])
+        job_desc_preprocess = apply_nltk(job_desc_parser_files)
+        resume_preprocess = apply_nltk(resume_parser_files)
+        resume_model = fine_tune_model(resume_preprocess,model,tokenizer)
+        test = job_desc_preprocess[0]
+        tttt = str(test)
+        result = job_desc_model(tttt,model,tokenizer)
+        list_percent = percentages(resume_model,result)
+        #print(list_percent)
+        df = percent_dataframe(Ordered_list_Resume,list_percent)
+        st.write("Score out of 10")
+        st.dataframe(df)
 
-            elif (resume_files is None) and (jd_file is not None):
-                st.warning("You need to upload your resumes")
+    elif (resume_files is None) and (jd_file is not None):
+        st.warning("You need to upload your resumes")
 
-            elif (resume_files is not None) and (jd_file is None):
-                st.warning("Please give job description")
+    elif (resume_files is not None) and (jd_file is None):
+        st.warning("Please give job description")
 
-            else:
-                st.warning("please give both resume and jd")
+    else:
+        st.warning("please give both resume and jd")
 
 
 
